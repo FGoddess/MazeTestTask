@@ -16,6 +16,8 @@ public class Shield : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     private PlayerMover _playerMover;
 
     private Button _button;
+    [SerializeField] private Text _timeText;
+
     private Coroutine _timerCoroutine;
 
     private bool _isInteractable = true;
@@ -65,6 +67,7 @@ public class Shield : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         while (_timeToPress > 0)
         {
             _timeToPress -= Time.deltaTime;
+            _timeText.text = $"Time left: {(int)(_timeToPress * 100) / 100f}";
             yield return null;
         }
 
