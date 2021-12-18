@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class DangerZone : MonoBehaviour
@@ -8,7 +6,10 @@ public class DangerZone : MonoBehaviour
     {
         if(other.TryGetComponent(out PlayerMover player))
         {
-            player.Die();
+            if (!player.IsShielded)
+            {
+                player.Die();
+            }
         }
     }
 }

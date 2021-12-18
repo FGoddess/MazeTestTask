@@ -57,20 +57,21 @@ public static class MazeGenerator
     private static WallState[,] ApplyRecursiveBackTracker(WallState[,] maze, int width, int height)
     {
         var rng = new System.Random();
-        var positionStack = new Stack<Position>();
+        var positionStack = new List<Position>();
         var position = new Position { X = rng.Next(0, width), Y = rng.Next(0, height) };
 
         maze[position.X, position.Y] |= WallState.Visited;
-        positionStack.Push(position);
+        positionStack.Add(position);
 
         while(positionStack.Count > 0)
         {
-            var current = positionStack.Pop();
+            var current = positionStack[positionStack.Count - 1];
+            positionStack.RemoveAt(positionStack.Count - 1);
             var neighbours = GetUnvisitedNeighbours(current, maze, width, height);
 
             if(neighbours.Count > 0)
             {
-                positionStack.Push(current);
+                positionStack.Add(current);
 
                 var randIndex = rng.Next(0, neighbours.Count);
                 var randNeighbour = neighbours[randIndex];
@@ -81,7 +82,7 @@ public static class MazeGenerator
 
                 maze[nPos.X, nPos.Y] |= WallState.Visited;
 
-                positionStack.Push(nPos);
+                positionStack.Add(nPos);
             }
         }
 

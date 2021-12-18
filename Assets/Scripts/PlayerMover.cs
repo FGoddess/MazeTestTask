@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -9,8 +7,15 @@ public class PlayerMover : MonoBehaviour
     private Transform _target;
     private LineRenderer _line;
     private NavMeshAgent _agent;
+    [SerializeField] private Transform _destroyedVersion;
 
     [SerializeField] private float _startDelay = 2f;
+
+    private Vector3 _startPoint;
+
+    private bool _isShielded;
+
+    public bool IsShielded { get => _isShielded; set => _isShielded = value; }
 
     private void OnEnable()
     {
@@ -22,7 +27,7 @@ public class PlayerMover : MonoBehaviour
         MazeRenderer.Instance.RenderComplete -= OnRenderComplete;
     }
 
-    private void OnRenderComplete(Transform target)
+    public void OnRenderComplete(Transform target)
     {
         StartCoroutine(SetTarget(target));
     }
@@ -37,6 +42,7 @@ public class PlayerMover : MonoBehaviour
     {
         _agent = GetComponent<NavMeshAgent>();
         _line = GetComponent<LineRenderer>();
+        _startPoint = transform.position;
     }
 
     private void GetPath()
@@ -60,7 +66,7 @@ public class PlayerMover : MonoBehaviour
 
     private void Update()
     {
-        if (_target != null)
+        if (_target != null && _agent.enabled)
         {
             _agent.SetDestination(_target.position);
             GetPath();
@@ -69,7 +75,33 @@ public class PlayerMover : MonoBehaviour
 
     public void Die()
     {
-        Instantiate(this.gameObject, new Vector3(0, 0, 0), Quaternion.identity);
+        StartCoroutine(DieRoutine());
+    }
+
+    private IEnumerator DieRoutine()
+    {
+        var newPlayer = Instantiate(this.gameObject, _startPoint, Quaternion.identity);
+        newPlayer.SetActive(false);
+
+        _agent.enabled = false;
+        GetComponent<MeshRenderer>().enabled = false;
+        GetComponent<BoxCollider>().enabled = false;
+        _destroyedVersion.gameObject.SetActive(true);
+
+        foreach (Transform box in _destroyedVersion)
+        {
+            box.GetComponent<Rigidbody>().AddExplosionForce(500f, _destroyedVersion.position, 50f);
+        }
+
+        yield return new WaitForSeconds(3f);
+
+        _destroyedVersion.gameObject.SetActive(false);
+
+        newPlayer.SetActive(true);
+        newPlayer.GetComponent<PlayerMover>().OnRenderComplete(_target);
+        newPlayer.GetComponent<MeshRenderer>().enabled = true;
+        newPlayer.GetComponent<BoxCollider>().enabled = true;
+        Shield.Instance.PlayerMesh = newPlayer.GetComponent<MeshRenderer>();
         Destroy(gameObject);
     }
 }
