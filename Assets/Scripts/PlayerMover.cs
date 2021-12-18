@@ -102,6 +102,8 @@ public class PlayerMover : MonoBehaviour
         newPlayer.GetComponent<MeshRenderer>().enabled = true;
         newPlayer.GetComponent<BoxCollider>().enabled = true;
         Shield.Instance.PlayerMesh = newPlayer.GetComponent<MeshRenderer>();
+        Shield.Instance.TimeToPress = 2f;
+
         Destroy(gameObject);
     }
 }

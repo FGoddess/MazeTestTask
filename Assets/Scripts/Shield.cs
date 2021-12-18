@@ -12,6 +12,16 @@ public class Shield : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     [SerializeField] private Material _shieldMat;
     [SerializeField] private float _timeToPress = 2f;
 
+    public float TimeToPress
+    {
+        get => _timeToPress;
+        set
+        {
+            _timeToPress = value;
+            _timeText.text = $"Time left: {_timeToPress}";
+        }
+    }
+
     private MeshRenderer _playerMesh;
     private PlayerMover _playerMover;
 
